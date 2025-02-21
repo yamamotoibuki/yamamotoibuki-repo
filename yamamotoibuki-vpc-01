@@ -18,7 +18,7 @@ Resources:
       EnableDnsHostnames: 'true'
       Tags:
        - Key: Name
-         Value: yamamotoibuki-vpc-01-work
+         Value: yamamotoibuki-vpc-01-work-02
 
   mySubnetpub1a:
     Type: AWS::EC2::Subnet
