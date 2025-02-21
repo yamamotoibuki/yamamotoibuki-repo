@@ -1,0 +1,214 @@
+# AWSTemplateFormatVersion: 2010-09-09
+# Description: |
+  
+# Parameters:
+  
+# Metadata:
+  
+# Mappings:
+  
+# Conditions:
+  
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+       - Key: Name
+         Value: yamamotoibuki-vpc-01
+
+  mySubnetpub1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-pubsubnet-1a
+
+  mySubnetpub1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-pubsubnet-1c
+
+  mySubnetpri1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-prisubnet-1a
+
+  mySubnetpri1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-prisubnet-1c
+
+  myInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-igw-01
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: myVPC
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: myVPC
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-rtb-01
+
+  myRouteTablepri1a:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: myVPC
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-rtb-1a
+
+  myRouteTablepri1c:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: myVPC
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-rtb-1c
+
+  mySubnetRouteTableAssociationpub1a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnetpub1a
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySubnetRouteTableAssociationpub1c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnetpub1c
+      RouteTableId:
+        Ref: myRouteTable
+
+  mySubnetRouteTableAssociationpri1a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnetpri1a
+      RouteTableId:
+        Ref: myRouteTablepri1a
+
+  mySubnetRouteTableAssociationpri1c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: mySubnetpri1c
+      RouteTableId:
+        Ref: myRouteTablepri1c
+
+  myRoute:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId:
+         Ref: myRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId:
+         Ref: myInternetGateway 
+
+  NATGatewaypri1a:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGatewayEIPpri1a.AllocationId
+      SubnetId: !Ref mySubnetpub1a
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-ngw-1a
+  NATGatewayEIPpri1a:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  RouteNATGatewaypri1a:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref myRouteTablepri1a
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NATGatewaypri1a
+
+  NATGatewaypri1c:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGatewayEIPpri1c.AllocationId
+      SubnetId: !Ref mySubnetpub1c
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-ngw-1c
+  NATGatewayEIPpri1c:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  RouteNATGatewaypri1c:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref myRouteTablepri1c
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NATGatewaypri1c
+# Transform:
+  
+Outputs:
+  myVPCOutput: 
+    Value: !Ref myVPC
+    Export: 
+      Name: exportVPC
+
+  mySubnetPub1aOutput: 
+    Value: !Ref mySubnetpub1a
+    Export: 
+      Name: exportSubnetpub1a  
+
+  mySunnetpri1aOutput: 
+    Value: !Ref mySubnetpri1a
+    Export: 
+      Name: exportSubnetpri1a   
+
+  mySubnetPub1cOutput: 
+    Value: !Ref mySubnetpub1c
+    Export: 
+      Name: exportSubnetpub1c
+
+  mySunnetpri1cOutput: 
+    Value: !Ref mySubnetpri1c
+    Export: 
+      Name: exportSubnetpri1c   
+
+
+
+
+
