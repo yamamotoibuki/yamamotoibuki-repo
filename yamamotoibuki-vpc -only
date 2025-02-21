@@ -6,4 +6,24 @@ Resources:
       EnableDnsSupport: 'true'
       Tags:
        - Key: Name
-         Value: yamamotoibuki-vpc-only
+         Value: yamamotoibuki-vpc-only-01
+
+  mySubnetpub1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "ap-northeast-1a"
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-pubsubnet-1a
+
+  mySubnetpub1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref myVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "ap-northeast-1c"
+      Tags:
+      - Key: Name
+        Value: yamamotoibuki-pubsubnet-1c
